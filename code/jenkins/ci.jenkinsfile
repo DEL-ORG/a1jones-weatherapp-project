@@ -1,0 +1,42 @@
+pipeline {
+    agent {
+        label 'master'
+    }
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '7'))
+        // skipDefaultCheckout(true)
+        disableConcurrentBuilds()
+        timeout (time: 10, unit: 'MINUTES')
+        timestamps()
+    }
+    stages {
+        stage ('Checkout') {
+            steps {
+                dir("${WORKSPACE}/code/code") {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: "*/${params.BRANCH_NAME}"]],
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions: [[$class: 'LocalBranch']],
+                        submoduleCfg: [],
+                        userRemoteConfigs: [[
+                        url: 'https://github.com/DEL-ORG/a1jones-weatherapp-project.git',
+                        credentialsId: 'a1jones-jenkins-github'
+                        ]]
+                    ])
+                }
+            }
+        }
+        stage('run') {
+            steps {
+                script {
+                    dir("${WORKSPACE}/code/code") {
+                        sh """
+                            ls -l                           
+                        """
+                    }
+                }
+            }
+        }
+    }
+}
