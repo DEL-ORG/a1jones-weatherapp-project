@@ -1,34 +1,16 @@
 pipeline {
-    agent any
-
-    triggers {
-        githubPush()
+    agent {
+        label 'master'
     }
-
-    // environment {
-    //     AWS_REGION = 'us-east-1'
-    //     ECR_REGISTRY = '529881641329.dkr.ecr.us-east-1.amazonaws.com'
-    //     TAG = 'latest'
-    // }
-
     options {
         buildDiscarder(logRotator(numToKeepStr: '7'))
         // skipDefaultCheckout(true)
         disableConcurrentBuilds()
-        timeout(time: 10, unit: 'MINUTES')
+        timeout (time: 10, unit: 'MINUTES')
         timestamps()
     }
-
-    parameters {
-        string(name: 'BRANCH_NAME', defaultValue: 'main', description: '')
-        // string(name: 'DB_IMAGE_NAME', defaultValue: 'db', description: '')
-        // string(name: 'AUTH_IMAGE_NAME', defaultValue: 'auth', description: '')
-        // string(name: 'REDIS_IMAGE_NAME', defaultValue: 'redis', description: '')
-        // string(name: 'UI_IMAGE_NAME', defaultValue: 'ui', description: '')
-    }
-
     stages {
-        stage('Checkout') {
+        stage ('Checkout') {
             steps {
                 dir("${WORKSPACE}/code/code") {
                     checkout([
@@ -38,61 +20,23 @@ pipeline {
                         extensions: [[$class: 'LocalBranch']],
                         submoduleCfg: [],
                         userRemoteConfigs: [[
-                            url: 'https://github.com/DEL-ORG/a1jones-weatherapp-project.git',
-                            credentialsId: 'a1jones-jenkins-github'
+                        url: 'https://github.com/DEL-ORG/a1jones-weatherapp-project.git',
+                        credentialsId: 'a1jones-jenkins-github'
                         ]]
                     ])
                 }
             }
         }
-
-        // stage('Build DB') {
-        //     steps {
-        //         script {
-        //             dir("${WORKSPACE}/code/code/jenkins") {
-        //                 sh """
-        //                 pwd
-        //                     // docker build -t ${env.ECR_REGISTRY}/${params.DB_IMAGE_NAME}:${env.TAG} .
-        //                 """
-        //             }
-        //         }
-        //     }
-        // }
-
-        // stage('Build Auth') {
-        //     steps {
-        //         script {
-        //             dir("${WORKSPACE}/code/code/auth") {
-        //                 sh """
-        //                     docker build -t ${env.ECR_REGISTRY}/${params.AUTH_IMAGE_NAME}:${env.TAG} .
-        //                 """
-        //             }
-        //         }
-        //     }
-        // }
-
-//         stage('Build Redis') {
-//             steps {
-//                 script {
-//                     dir("${WORKSPACE}/code/code/redis") {
-//                         sh """
-//                             docker build -t ${env.ECR_REGISTRY}/${params.REDIS_IMAGE_NAME}:${env.TAG} .
-//                         """
-//                     }
-//                 }
-//             }
-//         }
-
-//         stage('Build UI') {
-//             steps {
-//                 script {
-//                     dir("${WORKSPACE}/code/code/ui") {
-//                         sh """
-//                             docker build -t ${env.ECR_REGISTRY}/${params.UI_IMAGE_NAME}:${env.TAG} .
-//                         """
-//                     }
-//                 }
-//             }
-//         }
+        stage('run') {
+            steps {
+                script {
+                    dir("${WORKSPACE}/code/code") {
+                        sh """
+                            ls -l                           
+                        """
+                    }
+                }
+            }
+        }
     }
 }
